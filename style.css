@@ -77,9 +77,10 @@ button:hover {
 }
 
 .zero {
-    border-radius: 25px;
+    border-radius: 15px;
     height: 50px;
-    width: 50px;
+    grid-column: span 3;
+    width: auto;
 }
 
 .display.error {
