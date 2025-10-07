@@ -1,159 +1,103 @@
-// Calculator state variables
-let currentValue = 0;
-let previousValue = 0;
-let operator = null;
-let waitingForOperand = false;
-let justCalculated = false;
+// Simple calculator variables
+let display = document.getElementById('display');
+let currentNumber = 0;
+let previousNumber = 0;
+let operation = null;
+let newNumber = true;
 
-// Display limits
-const MAX_DIGITS = 8;
-const MAX_VALUE = 99999999; // 8 digits
-const MIN_VALUE = -9999999; // "-" + 7 digits
+// Display limits (8 digits or "-" + 7 digits)
+const MAX_VALUE = 99999999;
+const MIN_VALUE = -9999999;
 
-// Get display element
-const display = document.getElementById('display');
-
-// Function to update the display
+// Update display
 function updateDisplay(value) {
-    const displayElement = document.getElementById('display');
-    
-    // Remove any previous error/overflow classes
-    displayElement.classList.remove('error', 'overflow');
+    display.classList.remove('error', 'overflow');
     
     if (value === 'ERROR') {
-        displayElement.textContent = 'ERROR';
-        displayElement.classList.add('error');
+        display.textContent = 'ERROR';
+        display.classList.add('error');
     } else if (value === 'OVERFLOW') {
-        displayElement.textContent = 'OVERFLOW';
-        displayElement.classList.add('overflow');
+        display.textContent = 'OVERFLOW';
+        display.classList.add('overflow');
     } else {
-        // Format the number for display
-        let displayValue = value.toString();
-        
-        // Check if the number is too large to display
         if (value > MAX_VALUE || value < MIN_VALUE) {
-            displayElement.textContent = 'OVERFLOW';
-            displayElement.classList.add('overflow');
-            return;
+            display.textContent = 'OVERFLOW';
+            display.classList.add('overflow');
+        } else {
+            display.textContent = value;
         }
-        
-        // Ensure we don't exceed display limits
-        if (displayValue.length > MAX_DIGITS) {
-            displayElement.textContent = 'OVERFLOW';
-            displayElement.classList.add('overflow');
-            return;
-        }
-        
-        displayElement.textContent = displayValue;
     }
 }
 
-// Function to handle digit entry
+// Enter a digit
 function enterDigit(digit) {
     if (display.textContent === 'ERROR' || display.textContent === 'OVERFLOW') {
         reset();
     }
     
-    if (waitingForOperand || justCalculated) {
-        currentValue = digit;
-        waitingForOperand = false;
-        justCalculated = false;
+    if (newNumber) {
+        currentNumber = digit;
+        newNumber = false;
     } else {
-        // Check if adding this digit would exceed display limits
-        let newValue = currentValue * 10 + digit;
-        
-        // Check for overflow
-        if (newValue > MAX_VALUE || newValue.toString().length > MAX_DIGITS) {
+        let newValue = currentNumber * 10 + digit;
+        if (newValue > MAX_VALUE) {
             updateDisplay('OVERFLOW');
             return;
         }
-        
-        currentValue = newValue;
+        currentNumber = newValue;
     }
     
-    updateDisplay(currentValue);
+    updateDisplay(currentNumber);
 }
 
-// Function to handle operator entry
-function enterOperator(nextOperator) {
+// Enter an operator (+ or -)
+function enterOperator(op) {
     if (display.textContent === 'ERROR' || display.textContent === 'OVERFLOW') {
         return;
     }
     
-    if (previousValue === 0) {
-        previousValue = currentValue;
-    } else if (operator && !waitingForOperand) {
-        // Perform the pending calculation
-        const result = performCalculation();
-        if (result === null) return; // Error occurred
-        
-        currentValue = result;
-        previousValue = result;
-        updateDisplay(currentValue);
+    if (operation && !newNumber) {
+        calculate();
     }
     
-    waitingForOperand = true;
-    operator = nextOperator;
-    justCalculated = false;
+    previousNumber = currentNumber;
+    operation = op;
+    newNumber = true;
 }
 
-// Function to perform calculation
-function performCalculation() {
-    let result;
-    
-    switch (operator) {
-        case '+':
-            result = previousValue + currentValue;
-            break;
-        case '-':
-            result = previousValue - currentValue;
-            break;
-        default:
-            return currentValue;
+// Calculate result
+function calculate() {
+    if (!operation || newNumber) {
+        return;
     }
     
-    // Check for overflow
+    let result;
+    if (operation === '+') {
+        result = previousNumber + currentNumber;
+    } else if (operation === '-') {
+        result = previousNumber - currentNumber;
+    }
+    
     if (result > MAX_VALUE || result < MIN_VALUE) {
         updateDisplay('OVERFLOW');
-        currentValue = 0;
-        previousValue = 0;
-        operator = null;
-        waitingForOperand = false;
-        return null;
-    }
-    
-    return result;
-}
-
-// Function to handle calculate button
-function calculate() {
-    if (display.textContent === 'ERROR' || display.textContent === 'OVERFLOW') {
+        reset();
         return;
     }
     
-    if (operator && previousValue !== 0 && !waitingForOperand) {
-        const result = performCalculation();
-        if (result === null) return; // Error occurred
-        
-        currentValue = result;
-        previousValue = 0;
-        operator = null;
-        waitingForOperand = false;
-        justCalculated = true;
-        
-        updateDisplay(currentValue);
-    }
+    currentNumber = result;
+    operation = null;
+    newNumber = true;
+    updateDisplay(currentNumber);
 }
 
-// Function to reset calculator
+// Reset calculator
 function reset() {
-    currentValue = 0;
-    previousValue = 0;
-    operator = null;
-    waitingForOperand = false;
-    justCalculated = false;
-    updateDisplay(currentValue);
+    currentNumber = 0;
+    previousNumber = 0;
+    operation = null;
+    newNumber = true;
+    updateDisplay(0);
 }
 
-// Initialize display
-updateDisplay(currentValue);
+// Initialize
+updateDisplay(0);
