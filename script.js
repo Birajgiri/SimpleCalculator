@@ -1,15 +1,13 @@
-// Simple calculator variables
 let display = document.getElementById('display');
 let currentNumber = 0;
 let previousNumber = 0;
 let operation = null;
 let newNumber = true;
 
-// Display limits (8 digits or "-" + 7 digits)
+// Display limits
 const MAX_VALUE = 99999999;
 const MIN_VALUE = -9999999;
 
-// Update display
 function updateDisplay(value) {
     display.classList.remove('error', 'overflow');
     
@@ -29,7 +27,6 @@ function updateDisplay(value) {
     }
 }
 
-// Enter a digit
 function enterDigit(digit) {
     if (display.textContent === 'ERROR' || display.textContent === 'OVERFLOW') {
         reset();
@@ -50,7 +47,6 @@ function enterDigit(digit) {
     updateDisplay(currentNumber);
 }
 
-// Enter an operator (+ or -)
 function enterOperator(op) {
     if (display.textContent === 'ERROR' || display.textContent === 'OVERFLOW') {
         return;
@@ -65,7 +61,6 @@ function enterOperator(op) {
     newNumber = true;
 }
 
-// Calculate result
 function calculate() {
     if (!operation || newNumber) {
         return;
@@ -90,7 +85,6 @@ function calculate() {
     updateDisplay(currentNumber);
 }
 
-// Reset calculator
 function reset() {
     currentNumber = 0;
     previousNumber = 0;
@@ -99,5 +93,4 @@ function reset() {
     updateDisplay(0);
 }
 
-// Initialize
 updateDisplay(0);
